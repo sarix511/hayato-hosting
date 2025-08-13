@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HAYATO DEVELOP ONLY</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font for code -->
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #0a0f0d; color: #b2ffbe; font-family: 'Fira Mono', 'Consolas', monospace; }
+
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Matrix Rain */
+    #matrix-canvas {
+      position: fixed;
+      z-index: 1;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none;
+      opacity: 0.19;
+    }
+
+    /* Main UI */
+    .container {
+      position: relative;
+      z-index: 5;
+      width: 100vw; height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 18px 30px;
+      background: rgba(16,32,16,0.97);
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 2.5px;
+      border-bottom: 2px solid #1a4d1a;
+      color: #80ff90;
+      box-shadow: 0 2px 8px #112 0.3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header .btns {
+      display: flex;
+      gap: 14px;
+    }
+    button, .button {
+      background: #191c18;
+      border: 2px solid #3fa139;
+      color: #b2ffbe;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 7px 16px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover, .button:hover {
+      background: #263e29;
+      color: #5aff63;
+      border-color: #74ff7e;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
+      height: 1px;
+      min-height: 0;
+    }
+    aside {
+      background: rgba(11,23,13,0.92);
+      border-right: 1.5px solid #267d39;
+      padding: 15px;
+      width: 190px;
+      min-width: 135px;
+      color: #2bff3e;
+      font-size: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 6;
+    }
+    aside .button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .workarea {
+      flex: 1;
+      background: #121e13;
+      display: flex;
+      flex-direction: row;
+      min-width: 0;
+      min-height: 0;
+    }
+    /* Code Editor/Preview Split */
+    .editor-preview {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+    }
+    .tab-bar {
+      background: #112615;
+      color: #84ff99;
+      display: flex;
+      gap: 10px;
+      padding: 6px 15px;
+      border-bottom: 2px solid #235d2b;
+    }
+    .tab {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 3px 12px;
+      border-radius: 5px 5px 0 0;
+      background: transparent;
+      transition: background 0.18s;
+    }
+    .tab.active {
+      background: #1d3d22;
+      color: #a8ffb7;
+    }
+    .editor-section, .preview-section, .hex-section {
+      flex: 1;
+      display: none;
+      min-height: 0;
+      min-width: 0;
+      background: #111b14;
+      overflow: auto;
+      padding: 0;
+      position: relative;
+      z-index: 8;
+    }
+    .editor-section.active, .preview-section.active, .hex-section.active {
+      display: block;
+    }
+
+    /* Multi-language Editor Area */
+    .multi-editor-wrapper {
+      display: flex;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+    }
+    .lang-edit-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      border-right: 2.5px solid #1d2d17;
+      background: #111b14;
+    }
+    .lang-edit-block:last-child {
+      border-right: none;
+    }
+    .lang-label {
+      font-weight: bold;
+      font-size: 1rem;
+      letter-spacing: 1.5px;
+      padding: 7px 0 4px 11px;
+      color: white;
+      text-shadow: 0 1px 5px #0005;
+    }
+    .lang-html .lang-label { color: #7bf7b2; }
+    .lang-css .lang-label { color: #6ed8ff; }
+    .lang-js .lang-label { color: #ffe66e; }
+    .lang-html textarea { background: #112b1d; color: #7bf7b2; caret-color: #7bf7b2; }
+    .lang-css textarea { background: #0b2434; color: #6ed8ff; caret-color: #6ed8ff; }
+    .lang-js textarea { background: #23220d; color: #ffe66e; caret-color: #ffe66e; }
+    .lang-edit-block textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      min-width: 0;
+      border: none;
+      font-size: 1rem;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      outline: none;
+      resize: none;
+      padding: 13px 14px;
+      box-sizing: border-box;
+      background-clip: padding-box;
+      transition: background 0.2s, color 0.2s;
+      border-radius: 0 0 0 0;
+    }
+    .lang-edit-block textarea:focus {
+      box-shadow: 0 0 0 2px #39ff70b0;
+      z-index: 3;
+      position: relative;
+    }
+
+    /* Preview */
+    .preview-section {
+      background: #091c0d;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    #preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #090e09;
+    }
+    /* Hex Editor */
+    .hex-section {
+      background: #0e1921;
+      color: #85f2ff;
+      font-size: 1rem;
+      padding: 13px 18px;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      overflow-x: auto;
+      white-space: pre;
+      z-index: 9;
+      min-width: 0;
+    }
+    .hex-address { color: #1df6cc; margin-right: 8px; }
+    .hex-bytes { color: #b1f9ff; }
+    .hex-ascii { color: #ff79c6; }
+    /* Language Reader */
+    .lang-reader {
+      background: linear-gradient(90deg, #0f1825, #091c0d 70%);
+      color: #61ffbe;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin: 20px 18px;
+      font-size: 1.07rem;
+      box-shadow: 0 1px 12px #212 0.07;
+    }
+    .lang-html-rdr { color: #7bf7b2; }
+    .lang-css-rdr { color: #6ed8ff; }
+    .lang-js-rdr { color: #ffe66e; }
+    .lang-other-rdr { color: #ff6e7a; }
+    /* Popup Modal */
+    .modal-bg {
+      position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.54); z-index: 100;
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-bg.active { display: flex; }
+    .modal {
+      background: #1b2e20;
+      border: 2px solid #29ff47;
+      color: #c7fbe2;
+      padding: 30px 35px 25px 35px;
+      border-radius: 13px;
+      min-width: 330px;
+      box-shadow: 0 5px 35px #00ff0b33;
+      text-align: center;
+      z-index: 101;
+    }
+    .modal .modal-title { font-size: 1.25rem; color: #7affd1; margin-bottom: 18px; }
+    .modal .modal-btns { margin-top: 24px; display: flex; gap: 18px; justify-content: center; }
+    /* Bug highlight */
+    .bug-highlight {
+      background: rgba(255, 45, 99, 0.25) !important;
+      outline: 2px solid #ff006a !important;
+      animation: bugblink 1.2s infinite alternate;
+    }
+    @keyframes bugblink {
+      from { box-shadow: 0 0 10px #ff006a55; }
+      to   { box-shadow: 0 0 18px #ff006a; }
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; background: #141a14; }
+    ::-webkit-scrollbar-thumb { background: #1a4827; border-radius: 5px; }
+    ::selection { background: #63ff8c50; }
+    /* Responsive */
+    @media (max-width: 950px) {
+      .multi-editor-wrapper { flex-direction: column; }
+      .lang-edit-block { border-right: none; border-bottom: 2.5px solid #1d2d17; }
+      .lang-edit-block:last-child { border-bottom: none; }
+    }
+    @media (max-width: 750px) {
+      aside { display: none; }
+      .main-content { flex-direction: column; }
+      .workarea { flex-direction: column; }
+      .editor-preview { min-height: 220px; }
+      .multi-editor-wrapper { flex-direction: column; }
+      .lang-edit-block { border-right: none; border-bottom: 2.5px solid #1d2d17; }
+      .lang-edit-block:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+<canvas id="matrix-canvas"></canvas>
+<div class="container">
+  <header>
+    HAYATO DEVELOP ONLY
+    <div class="btns">
+      <button id="uploadBtn">Upload File</button>
+      <button id="bugsBtn" title="Find bugs and highlight">Find Bugs</button>
+      <button id="playBtn" title="Play/Live Preview">▶ Play</button>
+    </div>
+  </header>
+  <div class="main-content">
+    <aside>
+      <div>
+        <div style="font-weight: bold; color: #86ffbc;">Tools</div>
+        <button class="button" id="openHexBtn">HEX Editor</button>
+        <button class="button" id="openWebDevBtn">Web Developer</button>
+      </div>
+      <div>
+        <div style="font-weight: bold; color: #6ee0ff; margin-top: 20px;">Info</div>
+        <div style="font-size:0.97em; color:#a6ffc8; margin-top: 7px;">
+          Upload files, code, preview, debug and hex edit!
+        </div>
+      </div>
+    </aside>
+    <div class="workarea">
+      <div class="editor-preview" id="webDevView">
+        <div class="tab-bar">
+          <span class="tab active" id="tab-code">Code</span>
+          <span class="tab" id="tab-preview">Preview</span>
+          <span class="tab" id="tab-lang">Languages Read</span>
+        </div>
+        <div class="editor-section active" id="codeSection">
+          <div class="multi-editor-wrapper">
+            <div class="lang-edit-block lang-html">
+              <div class="lang-label">&lt;HTML&gt;</div>
+              <textarea id="editor-html" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write HTML here..."></textarea>
+            </div>
+            <div class="lang-edit-block lang-css">
+              <div class="lang-label">/* CSS */</div>
+              <textarea id="editor-css" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write CSS here..."></textarea>
+            </div>
+            <div class="lang-edit-block lang-js">
+              <div class="lang-label">// JavaScript</div>
+              <textarea id="editor-js" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write JavaScript here..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="preview-section" id="previewSection">
+          <iframe id="preview-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+        <div class="lang-reader" id="langSection" style="display:none;">
+          <div><span class="lang-html-rdr">HTML:</span> <span id="htmlLines">0</span> lines</div>
+          <div><span class="lang-css-rdr">CSS :</span> <span id="cssLines">0</span> lines</div>
+          <div><span class="lang-js-rdr">JS  :</span> <span id="jsLines">0</span> lines</div>
+          <div><span class="lang-other-rdr">Other:</span> <span id="otherLines">0</span> lines</div>
+        </div>
+      </div>
+      <div class="hex-section" id="hexView" style="display:none;">
+        <div id="hexContent">No file loaded.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modal">
+    <div class="modal-title" id="modalTitle">Open As...</div>
+    <div class="modal-btns">
+      <button class="button" id="modalHex">HEX Editor</button>
+      <button class="button" id="modalWebDev">Web Developer</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="fileInput" style="display:none;">
+
+<script>
+/* MATRIX EFFECT */
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+function resizeMatrix() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeMatrix();
+window.addEventListener('resize', resizeMatrix);
+
+const matrixChars = 'アァイィウヴエェオカガキギクグケゲコゴサザシジスズセゼソゾタダチッヂヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤュユョヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const fontSize = 20, columns = Math.floor(canvas.width / fontSize);
+let drops = Array.from({length: columns}, () => Math.random() * canvas.height / fontSize);
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(10,16,13,0.19)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = fontSize + "px monospace";
+  for(let i=0; i<drops.length; i++) {
+    let text = matrixChars[Math.floor(Math.random()*matrixChars.length)];
+    let x = i * fontSize, y = drops[i] * fontSize;
+    ctx.fillStyle = `hsl(${110+Math.random()*60}, 92%, 62%)`;
+    ctx.fillText(text, x, y);
+    if(y > canvas.height && Math.random() > 0.96) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 48);
+
+// UI LOGIC
+const tabCode = document.getElementById('tab-code');
+const tabPreview = document.getElementById('tab-preview');
+const tabLang = document.getElementById('tab-lang');
+const codeSection = document.getElementById('codeSection');
+const previewSection = document.getElementById('previewSection');
+const langSection = document.getElementById('langSection');
+const editorHTML = document.getElementById('editor-html');
+const editorCSS = document.getElementById('editor-css');
+const editorJS = document.getElementById('editor-js');
+const iframe = document.getElementById('preview-iframe');
+const playBtn = document.getElementById('playBtn');
+const bugsBtn = document.getElementById('bugsBtn');
+
+function setTab(tab) {
+  tabCode.classList.remove('active');
+  tabPreview.classList.remove('active');
+  tabLang.classList.remove('active');
+  codeSection.classList.remove('active');
+  previewSection.classList.remove('active');
+  langSection.style.display = 'none';
+  if(tab === 'code') {
+    tabCode.classList.add('active');
+    codeSection.classList.add('active');
+  } else if(tab === 'preview') {
+    tabPreview.classList.add('active');
+    previewSection.classList.add('active');
+  } else if(tab === 'lang') {
+    tabLang.classList.add('active');
+    langSection.style.display = '';
+  }
+}
+tabCode.onclick = ()=>setTab('code');
+tabPreview.onclick = ()=>setTab('preview');
+tabLang.onclick = ()=>{ updateLangRead(); setTab('lang'); };
+
+// Play/Live Preview
+function runPreview() {
+  const html = editorHTML.value || '';
+  const css = editorCSS.value || '';
+  const js = editorJS.value || '';
+  const doc = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Preview</title>
+<style>${css}</style>
+</head>
+<body>
+${html}
+<script>${js}<\/script>
+</body>
+</html>`;
+  iframe.srcdoc = doc;
+  setTab('preview');
+}
+playBtn.onclick = runPreview;
+
+// Ctrl+Enter in any editor triggers Play
+[editorHTML, editorCSS, editorJS].forEach(editor=>{
+  editor.addEventListener('keydown', function(e){
+    if(e.ctrlKey && e.key === 'Enter') {
+      runPreview();
+      e.preventDefault();
+    }
+  });
+});
+
+// Language Reader
+function updateLangRead() {
+  const html = editorHTML.value || '';
+  const css = editorCSS.value || '';
+  const js = editorJS.value || '';
+  document.getElementById('htmlLines').textContent = html.split('\n').length;
+  document.getElementById('cssLines').textContent = css.split('\n').length;
+  document.getElementById('jsLines').textContent = js.split('\n').length;
+  let other = 0;
+  document.getElementById('otherLines').textContent = other;
+}
+
+// HEX EDITOR
+const hexView = document.getElementById('hexView');
+const webDevView = document.getElementById('webDevView');
+function showHexEditor(content) {
+  webDevView.style.display = 'none';
+  hexView.style.display = 'block';
+  document.getElementById('hexContent').innerHTML = renderHex(content);
+}
+function showWebDev() {
+  hexView.style.display = 'none';
+  webDevView.style.display = 'flex';
+}
+
+function renderHex(buffer) {
+  if(typeof buffer === 'string') {
+    buffer = new TextEncoder().encode(buffer);
+  }
+  let lines = [];
+  for(let i=0; i<buffer.length; i+=16) {
+    const addr = ('00000000'+i.toString(16)).slice(-8);
+    const bytes = Array.from(buffer.slice(i,i+16)).map(b=>('0'+b.toString(16)).slice(-2)).join(' ');
+    const ascii = Array.from(buffer.slice(i,i+16)).map(b=>(b>=32&&b<127)?String.fromCharCode(b):'.').join('');
+    lines.push(`<span class="hex-address">${addr}</span> <span class="hex-bytes">${bytes.padEnd(47,' ')}</span> <span class="hex-ascii">${ascii}</span>`);
+  }
+  return lines.join('\n');
+}
+
+// File Upload
+const uploadBtn = document.getElementById('uploadBtn');
+const fileInput = document.getElementById('fileInput');
+const modalBg = document.getElementById('modalBg');
+let uploadedFileContent = null, uploadedFileName = null;
+uploadBtn.onclick = ()=>fileInput.click();
+
+fileInput.onchange = function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    uploadedFileContent = ev.target.result;
+    uploadedFileName = file.name;
+    showModal();
+  };
+  if(file.type.startsWith('text') || /\.(html?|css|js)$/i.test(file.name)) {
+    reader.readAsText(file);
+  } else {
+    reader.readAsArrayBuffer(file);
+  }
+};
+function showModal() {
+  modalBg.classList.add('active');
+}
+function hideModal() {
+  modalBg.classList.remove('active');
+}
+document.getElementById('modalHex').onclick = function(){
+  let content = uploadedFileContent;
+  if(content instanceof ArrayBuffer) content = new Uint8Array(content);
+  showHexEditor(content);
+  hideModal();
+};
+document.getElementById('modalWebDev').onclick = function(){
+  if(typeof uploadedFileContent === 'string') {
+    // Try to guess type by extension
+    if(uploadedFileName && uploadedFileName.match(/\.css$/i)) {
+      editorCSS.value = uploadedFileContent;
+    } else if(uploadedFileName && uploadedFileName.match(/\.js$/i)) {
+      editorJS.value = uploadedFileContent;
+    } else if(uploadedFileName && uploadedFileName.match(/\.html?$/i)) {
+      editorHTML.value = uploadedFileContent;
+    } else {
+      // fallback: HTML area
+      editorHTML.value = uploadedFileContent;
+    }
+    showWebDev();
+    setTab('code');
+  } else {
+    // Try to decode as UTF-8
+    let text = '';
+    try {
+      text = new TextDecoder().decode(new Uint8Array(uploadedFileContent));
+    } catch { text = '[Binary file]'; }
+    editorHTML.value = text;
+    showWebDev();
+    setTab('code');
+  }
+  hideModal();
+};
+modalBg.onclick = function(e){ if(e.target === modalBg) hideModal(); };
+
+// Aside Buttons
+document.getElementById('openHexBtn').onclick = ()=>showHexEditor(editorHTML.value || editorCSS.value || editorJS.value);
+document.getElementById('openWebDevBtn').onclick = ()=>{ showWebDev(); setTab('code'); };
+
+// Bugs Detection (very basic!)
+bugsBtn.onclick = ()=>{
+  runPreview();
+  setTimeout(()=>{
+    const previewDoc = iframe.contentDocument;
+    previewDoc.querySelectorAll('.bug-highlight').forEach(e=>e.classList.remove('bug-highlight'));
+    let bugs = [];
+    previewDoc.querySelectorAll('img').forEach(img=>{
+      img.onerror = ()=>{ img.classList.add('bug-highlight'); bugs.push(img); };
+      if(img.complete && img.naturalWidth===0) img.classList.add('bug-highlight');
+    });
+    previewDoc.querySelectorAll('a').forEach(a=>{
+      if(!a.getAttribute('href') || a.getAttribute('href')==='#') {
+        a.classList.add('bug-highlight'); bugs.push(a);
+      }
+    });
+    previewDoc.querySelectorAll('input').forEach(input=>{
+      if(!input.name && !input.id) { input.classList.add('bug-highlight'); bugs.push(input);}
+    });
+    previewDoc.querySelectorAll('[style]').forEach(el=>{
+      try { el.style.setProperty('--test', 'bug'); } catch { el.classList.add('bug-highlight'); bugs.push(el);}
+    });
+    if(!previewDoc.documentElement || !previewDoc.body) {
+      previewDoc.body.innerHTML += '<div style="color:#ff006a;font-weight:bold;">BUG: Missing &lt;html&gt; or &lt;body&gt; tag!</div>';
+    }
+    if(bugs.length===0) {
+      alert("No obvious bugs detected! (basic check)");
+    } else {
+      alert(`${bugs.length} bug(s) highlighted in pink!`);
+    }
+  }, 420);
+};
+
+// Initial Demo Code
+editorHTML.value =
+`<h1>Welcome to <span style="color:#7bf7b2">Hayato Develop Only!</span></h1>
+<p>Try editing code, uploading files, or using the HEX editor.</p>
+<img src="broken-image.png" width="140" />
+<a href="#">Broken Link</a>
+`;
+editorCSS.value =
+`body { background: #0a0f0d; color: #b2ffbe; font-family: monospace; }
+h1 { color: #12ff13; text-shadow:0 0 6px #0f0; }
+a { color: #6ed8ff; }
+img { border: 2px dashed #ffe66e; border-radius: 7px; margin: 12px 0; }
+`;
+editorJS.value =
+`// You can write JavaScript here!
+console.log("Hayato Develop Only Live JS Loaded!");
+`;
+
+runPreview();
+
+</script>
+</body>
+</html>
