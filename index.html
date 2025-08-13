@@ -4,16 +4,14 @@
   <meta charset="UTF-8">
   <title>HAYATO DEVELOP ONLY</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Font for code -->
-  <link href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700&display=swap" rel="stylesheet">
+  <!-- Fira Mono for code style -->
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; background: #0a0f0d; color: #b2ffbe; font-family: 'Fira Mono', 'Consolas', monospace; }
 
-    body {
-      min-height: 100vh;
-      overflow: hidden;
-    }
+    body { min-height: 100vh; overflow: hidden; }
 
     /* Matrix Rain */
     #matrix-canvas {
@@ -22,7 +20,7 @@
       left: 0; top: 0;
       width: 100vw; height: 100vh;
       pointer-events: none;
-      opacity: 0.19;
+      opacity: 0.18;
     }
 
     /* Main UI */
@@ -36,7 +34,7 @@
 
     header {
       padding: 18px 30px;
-      background: rgba(16,32,16,0.97);
+      background: rgba(16,32,16,0.96);
       font-size: 2rem;
       font-weight: bold;
       letter-spacing: 2.5px;
@@ -49,7 +47,7 @@
     }
     header .btns {
       display: flex;
-      gap: 14px;
+      gap: 12px;
     }
     button, .button {
       background: #191c18;
@@ -77,7 +75,7 @@
       background: rgba(11,23,13,0.92);
       border-right: 1.5px solid #267d39;
       padding: 15px;
-      width: 190px;
+      width: 210px;
       min-width: 135px;
       color: #2bff3e;
       font-size: 1.1rem;
@@ -89,6 +87,15 @@
     aside .button {
       width: 100%;
       margin-bottom: 10px;
+    }
+    aside .host-info {
+      background: #142019;
+      border: 1px solid #2cebbc88;
+      border-radius: 7px;
+      padding: 14px 10px 10px 10px;
+      margin-top: 14px;
+      color: #b8ffd1;
+      font-size: 1em;
     }
     .workarea {
       flex: 1;
@@ -140,62 +147,19 @@
     .editor-section.active, .preview-section.active, .hex-section.active {
       display: block;
     }
-
-    /* Multi-language Editor Area */
-    .multi-editor-wrapper {
-      display: flex;
-      height: 100%;
-      min-width: 0;
-      min-height: 0;
-    }
-    .lang-edit-block {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      min-height: 0;
-      border-right: 2.5px solid #1d2d17;
-      background: #111b14;
-    }
-    .lang-edit-block:last-child {
-      border-right: none;
-    }
-    .lang-label {
-      font-weight: bold;
-      font-size: 1rem;
-      letter-spacing: 1.5px;
-      padding: 7px 0 4px 11px;
-      color: white;
-      text-shadow: 0 1px 5px #0005;
-    }
-    .lang-html .lang-label { color: #7bf7b2; }
-    .lang-css .lang-label { color: #6ed8ff; }
-    .lang-js .lang-label { color: #ffe66e; }
-    .lang-html textarea { background: #112b1d; color: #7bf7b2; caret-color: #7bf7b2; }
-    .lang-css textarea { background: #0b2434; color: #6ed8ff; caret-color: #6ed8ff; }
-    .lang-js textarea { background: #23220d; color: #ffe66e; caret-color: #ffe66e; }
-    .lang-edit-block textarea {
+    .editor-section { padding: 0; }
+    #editor {
       width: 100%;
       height: 100%;
-      min-height: 0;
-      min-width: 0;
       border: none;
       font-size: 1rem;
+      background: #111b14;
+      color: #b2ffbe;
       font-family: 'Fira Mono', 'Consolas', monospace;
       outline: none;
       resize: none;
-      padding: 13px 14px;
-      box-sizing: border-box;
-      background-clip: padding-box;
-      transition: background 0.2s, color 0.2s;
-      border-radius: 0 0 0 0;
+      padding: 18px;
     }
-    .lang-edit-block textarea:focus {
-      box-shadow: 0 0 0 2px #39ff70b0;
-      z-index: 3;
-      position: relative;
-    }
-
     /* Preview */
     .preview-section {
       background: #091c0d;
@@ -234,10 +198,35 @@
       font-size: 1.07rem;
       box-shadow: 0 1px 12px #212 0.07;
     }
-    .lang-html-rdr { color: #7bf7b2; }
-    .lang-css-rdr { color: #6ed8ff; }
-    .lang-js-rdr { color: #ffe66e; }
-    .lang-other-rdr { color: #ff6e7a; }
+    .lang-html { color: #85ff8e; }
+    .lang-css { color: #5edfff; }
+    .lang-js { color: #ffc76e; }
+    .lang-other { color: #ff6e7a; }
+    /* Drag & Drop Hosting */
+    .drop-zone {
+      margin: 18px;
+      border: 2px dashed #26ebc7;
+      background: #222a22cc;
+      color: #a5ffe3;
+      border-radius: 13px;
+      padding: 34px 18px;
+      text-align: center;
+      font-size: 1.13em;
+      transition: background 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+    .drop-zone.dragover {
+      background: #1b2f1b;
+      border-color: #4bffdf;
+      color: #eafff2;
+    }
+    .hosted-link {
+      word-break: break-all;
+      color: #31e7ff;
+      margin: 10px 0 0 0;
+      display: block;
+      font-weight: bold;
+    }
     /* Popup Modal */
     .modal-bg {
       position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
@@ -273,19 +262,12 @@
     ::-webkit-scrollbar-thumb { background: #1a4827; border-radius: 5px; }
     ::selection { background: #63ff8c50; }
     /* Responsive */
-    @media (max-width: 950px) {
-      .multi-editor-wrapper { flex-direction: column; }
-      .lang-edit-block { border-right: none; border-bottom: 2.5px solid #1d2d17; }
-      .lang-edit-block:last-child { border-bottom: none; }
-    }
     @media (max-width: 750px) {
       aside { display: none; }
       .main-content { flex-direction: column; }
       .workarea { flex-direction: column; }
       .editor-preview { min-height: 220px; }
-      .multi-editor-wrapper { flex-direction: column; }
-      .lang-edit-block { border-right: none; border-bottom: 2.5px solid #1d2d17; }
-      .lang-edit-block:last-child { border-bottom: none; }
+      .drop-zone { margin: 10px 2vw; padding: 24px 3vw; }
     }
   </style>
 </head>
@@ -298,6 +280,7 @@
       <button id="uploadBtn">Upload File</button>
       <button id="bugsBtn" title="Find bugs and highlight">Find Bugs</button>
       <button id="playBtn" title="Play/Live Preview">▶ Play</button>
+      <button id="hostBtn" title="Host your site!">🌐 Host</button>
     </div>
   </header>
   <div class="main-content">
@@ -306,11 +289,26 @@
         <div style="font-weight: bold; color: #86ffbc;">Tools</div>
         <button class="button" id="openHexBtn">HEX Editor</button>
         <button class="button" id="openWebDevBtn">Web Developer</button>
+        <button class="button" id="openHostBtn">Hosting Options</button>
       </div>
       <div>
         <div style="font-weight: bold; color: #6ee0ff; margin-top: 20px;">Info</div>
         <div style="font-size:0.97em; color:#a6ffc8; margin-top: 7px;">
-          Upload files, code, preview, debug and hex edit!
+          Upload files, code, preview, debug, hex edit, or <b>drag &amp; host</b> your site instantly!
+        </div>
+      </div>
+      <div class="host-info">
+        <b>Available Free Hosting Domains:</b>
+        <ul style="margin: 7px 0 0 14px; font-size:0.97em;">
+          <li>Vercel (<span style="color:#55fdc6;">*.vercel.app</span>)</li>
+          <li>Netlify (<span style="color:#55d3fd;">*.netlify.app</span>)</li>
+          <li>GitHub Pages (<span style="color:#fda655;">github.io</span>)</li>
+          <li>Neocities (<span style="color:#f782c2;">neocities.org</span>)</li>
+          <li>CTWS (<span style="color:#b2ffbe;">ct.ws</span>)</li>
+          <li>Surge.sh (<span style="color:#b3f0ff;">surge.sh</span>)</li>
+        </ul>
+        <div style="margin-top:10px;font-size:0.93em;opacity:0.7;">
+          <i>Drag your site folder or zip file below to host it easily!</i>
         </div>
       </div>
     </aside>
@@ -320,31 +318,33 @@
           <span class="tab active" id="tab-code">Code</span>
           <span class="tab" id="tab-preview">Preview</span>
           <span class="tab" id="tab-lang">Languages Read</span>
+          <span class="tab" id="tab-host">Host</span>
         </div>
         <div class="editor-section active" id="codeSection">
-          <div class="multi-editor-wrapper">
-            <div class="lang-edit-block lang-html">
-              <div class="lang-label">&lt;HTML&gt;</div>
-              <textarea id="editor-html" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write HTML here..."></textarea>
-            </div>
-            <div class="lang-edit-block lang-css">
-              <div class="lang-label">/* CSS */</div>
-              <textarea id="editor-css" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write CSS here..."></textarea>
-            </div>
-            <div class="lang-edit-block lang-js">
-              <div class="lang-label">// JavaScript</div>
-              <textarea id="editor-js" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write JavaScript here..."></textarea>
-            </div>
-          </div>
+          <textarea id="editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write your HTML/CSS/JS code here..."></textarea>
         </div>
         <div class="preview-section" id="previewSection">
           <iframe id="preview-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
         <div class="lang-reader" id="langSection" style="display:none;">
-          <div><span class="lang-html-rdr">HTML:</span> <span id="htmlLines">0</span> lines</div>
-          <div><span class="lang-css-rdr">CSS :</span> <span id="cssLines">0</span> lines</div>
-          <div><span class="lang-js-rdr">JS  :</span> <span id="jsLines">0</span> lines</div>
-          <div><span class="lang-other-rdr">Other:</span> <span id="otherLines">0</span> lines</div>
+          <div><span class="lang-html">HTML:</span> <span id="htmlLines">0</span> lines</div>
+          <div><span class="lang-css">CSS :</span> <span id="cssLines">0</span> lines</div>
+          <div><span class="lang-js">JS  :</span> <span id="jsLines">0</span> lines</div>
+          <div><span class="lang-other">Other:</span> <span id="otherLines">0</span> lines</div>
+        </div>
+        <div class="editor-section" id="hostSection" style="display:none;">
+          <div class="drop-zone" id="fileDropZone">
+            <div>🗂️ <b>Drag &amp; Drop</b> your site file or folder here to host it on:</div>
+            <ul style="margin: 14px 0 0 0; padding-left: 0; list-style: inside disc; color: #fff;">
+              <li><b>Vercel</b> <span style="color:#55fdc6;">*.vercel.app</span></li>
+              <li><b>Netlify</b> <span style="color:#55d3fd;">*.netlify.app</span></li>
+              <li><b>CTWS</b> <span style="color:#b2ffbe;">ct.ws</span></li>
+            </ul>
+            <div style="font-size:0.93em;opacity:0.80;margin-top:8px;">
+              (No login required for CTWS, for Vercel/Netlify you may need free account)
+            </div>
+            <div id="hostResult" style="margin-top:18px;"></div>
+          </div>
         </div>
       </div>
       <div class="hex-section" id="hexView" style="display:none;">
@@ -353,7 +353,6 @@
     </div>
   </div>
 </div>
-
 <!-- Modal -->
 <div class="modal-bg" id="modalBg">
   <div class="modal" id="modal">
@@ -377,6 +376,7 @@ function resizeMatrix() {
 resizeMatrix();
 window.addEventListener('resize', resizeMatrix);
 
+// CHARS
 const matrixChars = 'アァイィウヴエェオカガキギクグケゲコゴサザシジスズセゼソゾタダチッヂヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤュユョヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const fontSize = 20, columns = Math.floor(canvas.width / fontSize);
 let drops = Array.from({length: columns}, () => Math.random() * canvas.height / fontSize);
@@ -400,23 +400,27 @@ setInterval(drawMatrix, 48);
 const tabCode = document.getElementById('tab-code');
 const tabPreview = document.getElementById('tab-preview');
 const tabLang = document.getElementById('tab-lang');
+const tabHost = document.getElementById('tab-host');
 const codeSection = document.getElementById('codeSection');
 const previewSection = document.getElementById('previewSection');
 const langSection = document.getElementById('langSection');
-const editorHTML = document.getElementById('editor-html');
-const editorCSS = document.getElementById('editor-css');
-const editorJS = document.getElementById('editor-js');
+const hostSection = document.getElementById('hostSection');
+const editor = document.getElementById('editor');
 const iframe = document.getElementById('preview-iframe');
 const playBtn = document.getElementById('playBtn');
 const bugsBtn = document.getElementById('bugsBtn');
+const hostBtn = document.getElementById('hostBtn');
+const openHostBtn = document.getElementById('openHostBtn');
 
 function setTab(tab) {
   tabCode.classList.remove('active');
   tabPreview.classList.remove('active');
   tabLang.classList.remove('active');
+  tabHost.classList.remove('active');
   codeSection.classList.remove('active');
   previewSection.classList.remove('active');
   langSection.style.display = 'none';
+  hostSection.style.display = 'none';
   if(tab === 'code') {
     tabCode.classList.add('active');
     codeSection.classList.add('active');
@@ -426,54 +430,54 @@ function setTab(tab) {
   } else if(tab === 'lang') {
     tabLang.classList.add('active');
     langSection.style.display = '';
+  } else if(tab === 'host') {
+    tabHost.classList.add('active');
+    hostSection.style.display = '';
   }
 }
 tabCode.onclick = ()=>setTab('code');
 tabPreview.onclick = ()=>setTab('preview');
 tabLang.onclick = ()=>{ updateLangRead(); setTab('lang'); };
+tabHost.onclick = ()=>setTab('host');
+hostBtn.onclick = ()=>setTab('host');
+openHostBtn.onclick = ()=>setTab('host');
 
 // Play/Live Preview
 function runPreview() {
-  const html = editorHTML.value || '';
-  const css = editorCSS.value || '';
-  const js = editorJS.value || '';
-  const doc = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Preview</title>
-<style>${css}</style>
-</head>
-<body>
-${html}
-<script>${js}<\/script>
-</body>
-</html>`;
-  iframe.srcdoc = doc;
+  const code = editor.value;
+  iframe.srcdoc = code;
   setTab('preview');
 }
 playBtn.onclick = runPreview;
 
-// Ctrl+Enter in any editor triggers Play
-[editorHTML, editorCSS, editorJS].forEach(editor=>{
-  editor.addEventListener('keydown', function(e){
-    if(e.ctrlKey && e.key === 'Enter') {
-      runPreview();
-      e.preventDefault();
-    }
-  });
+// Live update preview on Play OR Ctrl+Enter
+editor.addEventListener('keydown', function(e){
+  if(e.ctrlKey && e.key === 'Enter') {
+    runPreview();
+    e.preventDefault();
+  }
 });
 
 // Language Reader
 function updateLangRead() {
-  const html = editorHTML.value || '';
-  const css = editorCSS.value || '';
-  const js = editorJS.value || '';
-  document.getElementById('htmlLines').textContent = html.split('\n').length;
-  document.getElementById('cssLines').textContent = css.split('\n').length;
-  document.getElementById('jsLines').textContent = js.split('\n').length;
-  let other = 0;
-  document.getElementById('otherLines').textContent = other;
+  const code = editor.value;
+  let htmlLines=0, cssLines=0, jsLines=0, otherLines=0;
+  let html = code.match(/<html[\s\S]*?>[\s\S]*?<\/html>/gmi) || [];
+  let css  = code.match(/<style[\s\S]*?>[\s\S]*?<\/style>/gmi) || [];
+  let js   = code.match(/<script[\s\S]*?>[\s\S]*?<\/script>/gmi) || [];
+  html.forEach(block=>htmlLines += block.split('\n').length);
+  css.forEach(block=>cssLines += block.split('\n').length);
+  js.forEach(block=>jsLines += block.split('\n').length);
+
+  let other = code.replace(/<html[\s\S]*?>[\s\S]*?<\/html>/gmi, '')
+                  .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gmi, '')
+                  .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gmi, '');
+  otherLines = other.split('\n').filter(x=>x.trim()).length;
+
+  document.getElementById('htmlLines').textContent = htmlLines;
+  document.getElementById('cssLines').textContent = cssLines;
+  document.getElementById('jsLines').textContent = jsLines;
+  document.getElementById('otherLines').textContent = otherLines;
 }
 
 // HEX EDITOR
@@ -508,6 +512,7 @@ const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('fileInput');
 const modalBg = document.getElementById('modalBg');
 let uploadedFileContent = null, uploadedFileName = null;
+let pendingFileResult = null;
 uploadBtn.onclick = ()=>fileInput.click();
 
 fileInput.onchange = function(e){
@@ -539,17 +544,7 @@ document.getElementById('modalHex').onclick = function(){
 };
 document.getElementById('modalWebDev').onclick = function(){
   if(typeof uploadedFileContent === 'string') {
-    // Try to guess type by extension
-    if(uploadedFileName && uploadedFileName.match(/\.css$/i)) {
-      editorCSS.value = uploadedFileContent;
-    } else if(uploadedFileName && uploadedFileName.match(/\.js$/i)) {
-      editorJS.value = uploadedFileContent;
-    } else if(uploadedFileName && uploadedFileName.match(/\.html?$/i)) {
-      editorHTML.value = uploadedFileContent;
-    } else {
-      // fallback: HTML area
-      editorHTML.value = uploadedFileContent;
-    }
+    editor.value = uploadedFileContent;
     showWebDev();
     setTab('code');
   } else {
@@ -558,7 +553,7 @@ document.getElementById('modalWebDev').onclick = function(){
     try {
       text = new TextDecoder().decode(new Uint8Array(uploadedFileContent));
     } catch { text = '[Binary file]'; }
-    editorHTML.value = text;
+    editor.value = text;
     showWebDev();
     setTab('code');
   }
@@ -567,62 +562,34 @@ document.getElementById('modalWebDev').onclick = function(){
 modalBg.onclick = function(e){ if(e.target === modalBg) hideModal(); };
 
 // Aside Buttons
-document.getElementById('openHexBtn').onclick = ()=>showHexEditor(editorHTML.value || editorCSS.value || editorJS.value);
+document.getElementById('openHexBtn').onclick = ()=>showHexEditor(editor.value);
 document.getElementById('openWebDevBtn').onclick = ()=>{ showWebDev(); setTab('code'); };
 
 // Bugs Detection (very basic!)
 bugsBtn.onclick = ()=>{
+  // Only works for live preview
   runPreview();
   setTimeout(()=>{
     const previewDoc = iframe.contentDocument;
+    // Remove old highlights
     previewDoc.querySelectorAll('.bug-highlight').forEach(e=>e.classList.remove('bug-highlight'));
+    // "Find bugs" - highlight common mistakes (unclosed tags, empty src/href, inline style issues, broken images)
     let bugs = [];
+    // 1. Images with broken src
     previewDoc.querySelectorAll('img').forEach(img=>{
       img.onerror = ()=>{ img.classList.add('bug-highlight'); bugs.push(img); };
+      // Try to trigger error if broken
       if(img.complete && img.naturalWidth===0) img.classList.add('bug-highlight');
     });
+    // 2. Anchors with empty href
     previewDoc.querySelectorAll('a').forEach(a=>{
       if(!a.getAttribute('href') || a.getAttribute('href')==='#') {
         a.classList.add('bug-highlight'); bugs.push(a);
       }
     });
+    // 3. Inputs with no name/id
     previewDoc.querySelectorAll('input').forEach(input=>{
       if(!input.name && !input.id) { input.classList.add('bug-highlight'); bugs.push(input);}
     });
-    previewDoc.querySelectorAll('[style]').forEach(el=>{
-      try { el.style.setProperty('--test', 'bug'); } catch { el.classList.add('bug-highlight'); bugs.push(el);}
-    });
-    if(!previewDoc.documentElement || !previewDoc.body) {
-      previewDoc.body.innerHTML += '<div style="color:#ff006a;font-weight:bold;">BUG: Missing &lt;html&gt; or &lt;body&gt; tag!</div>';
-    }
-    if(bugs.length===0) {
-      alert("No obvious bugs detected! (basic check)");
-    } else {
-      alert(`${bugs.length} bug(s) highlighted in pink!`);
-    }
-  }, 420);
-};
-
-// Initial Demo Code
-editorHTML.value =
-`<h1>Welcome to <span style="color:#7bf7b2">Hayato Develop Only!</span></h1>
-<p>Try editing code, uploading files, or using the HEX editor.</p>
-<img src="broken-image.png" width="140" />
-<a href="#">Broken Link</a>
-`;
-editorCSS.value =
-`body { background: #0a0f0d; color: #b2ffbe; font-family: monospace; }
-h1 { color: #12ff13; text-shadow:0 0 6px #0f0; }
-a { color: #6ed8ff; }
-img { border: 2px dashed #ffe66e; border-radius: 7px; margin: 12px 0; }
-`;
-editorJS.value =
-`// You can write JavaScript here!
-console.log("Hayato Develop Only Live JS Loaded!");
-`;
-
-runPreview();
-
-</script>
-</body>
-</html>
+    // 4. Elements with inline style errors (e.g., invalid CSS)
+    previewDoc.q
